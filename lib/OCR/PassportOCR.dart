@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:demo_aigen/Common/SettingFile.dart';
+import 'package:demo_aigen/Service/PassportObject.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
@@ -41,6 +42,7 @@ class _PassportOCRPagePageState extends State<PassportOCRPage> {
   String? apiResponse;
   String? key;
   late BuildContext contextHud;
+  List<PassPortResult>? results;
 
   @override
   initState() {
@@ -81,6 +83,7 @@ class _PassportOCRPagePageState extends State<PassportOCRPage> {
     if (key != null && image != null) {
       setState(() {
         apiResponse = "";
+        results = null;
       });
       final response = await http.post(
         Uri.parse('${SettingFile().host}${SettingFile().pathPassportOCR}')
@@ -91,22 +94,12 @@ class _PassportOCRPagePageState extends State<PassportOCRPage> {
         'image': base64Encode((await image?.readAsBytes()) as List<int>),
       }),);
       setState(() {
-        // try {
-        //   Map<String, dynamic> map = jsonDecode(response.body);
-        //   IdOcrObject item = IdOcrObject.fromJson(map);
-        //   Field field = item.result!.field!;
-        //   apiResponse = "ID : ${field.idNumber?.value} \n NameTH : ${field.titleNameSurnameTh?.value} "
-        //       "\n NameEN : ${field.titleNameEn?.value} ${field.surnameEn?.value}"
-        //       "\n BDate: ${field.dobTh?.value} ${field.dobEn?.value}"
-        //       "\n Religion: ${field.religion?.value}"
-        //       "\n Address 1: ${field.address1?.value}"
-        //       "\n Address 2: ${field.address2?.value}"
-        //       "\n IDate: ${field.doiEn?.value} ${field.doiEn?.value}"
-        //       "\n EDate: ${field.doeTh?.value} ${field.doeEn?.value}"
-        //       "";
-        // } catch (e) {
-        apiResponse = response.body.toString();
-        // }
+        try {
+          final jsonMap = json.decode(response.body);
+          results = (jsonMap['result'] as List).map((item) => PassPortResult.fromJson(item)).toList();
+        } catch (e) {
+          apiResponse = response.body.toString();
+        }
         final progress = ProgressHUD.of(contextHud);
         progress?.dismiss();
       });
@@ -183,6 +176,21 @@ class _PassportOCRPagePageState extends State<PassportOCRPage> {
                       ),
                       Container(
                         child: apiResponse != null ? Text('${apiResponse}'): Text(""),
+                      ),
+                      Container(
+                        child: results != null ? ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: results!.length,
+                          itemBuilder: (context, index) {
+                            final item = results![index];
+                            return ListTile(
+                              title: Text(' '),
+                              subtitle: Text('Key: ${item.key}, text: ${item.text}\nConfidence: ${item.confidence}'),
+                              // subtitle: item.buildSubtitle(context),
+                            );
+                          },
+                        ): Text(""),
                       ),
                     ],
                   )

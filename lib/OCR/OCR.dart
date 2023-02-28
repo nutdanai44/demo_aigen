@@ -95,9 +95,8 @@ class _GeneralOCRPagePageState extends State<GeneralOCRPage> {
       }),);
       setState(() {
         try {
-          Map<String, dynamic> map = jsonDecode(response.body);
-          GeneralOcrObject item = GeneralOcrObject.fromJson(map);
-          itemList = item.result!;
+          final jsonMap = json.decode(response.body);
+          itemList = (jsonMap['result'] as List).map((item) => GeneralResult.fromJson(item)).toList();
         } catch (e) {
           apiResponse = response.body.toString();
         }
@@ -180,13 +179,15 @@ class _GeneralOCRPagePageState extends State<GeneralOCRPage> {
                         ),
                         Container(
                           child: itemList != null ? ListView.builder(
-                              itemCount: itemList!.length,
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: itemList!.length,
                             itemBuilder: (context, index) {
                               final item = itemList![index];
 
                               return ListTile(
                                 title: Text(' '),
-                                  subtitle: Text('${item.textPage}'),
+                                  subtitle: Text('text_page: ${item.textPage}'),
                                 // subtitle: item.buildSubtitle(context),
                               );
                             },

@@ -138,7 +138,7 @@ class _MyOCRPagePageState extends State<MyOCRPage> {
         ProgressHUD(
           child: Builder(
               builder: (context) =>
-                  ListView(
+                  Column(
                     children: [
                       MaterialButton(
                           color: Colors.blue,
