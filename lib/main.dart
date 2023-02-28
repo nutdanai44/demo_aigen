@@ -1,5 +1,7 @@
+import 'package:demo_aigen/Face/FaceCompare.dart';
 import 'package:demo_aigen/OCR/IDOCR.dart';
 import 'package:demo_aigen/OCR/OCR.dart';
+import 'package:demo_aigen/OCR/PassportOCR.dart';
 import 'package:demo_aigen/Setting/setting_view.dart';
 import 'package:flutter/material.dart';
 
@@ -57,11 +59,17 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _goPassportOCR() {
-    print("Pass OCR");
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const passport_ocr_view()),
+    );
   }
 
   void _goFace() {
-    print("F");
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const face_compare_view()),
+    );
   }
 
   void _goSetting() {

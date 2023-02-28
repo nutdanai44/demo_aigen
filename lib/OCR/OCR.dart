@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:demo_aigen/Common/SettingFile.dart';
+import 'package:demo_aigen/Service/GeneralObject.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
@@ -38,6 +39,7 @@ class GeneralOCRPage extends StatefulWidget {
 class _GeneralOCRPagePageState extends State<GeneralOCRPage> {
 
   File? image;
+  List<GeneralResult>? itemList;
   String? apiResponse;
   String? key;
   late BuildContext contextHud;
@@ -80,6 +82,7 @@ class _GeneralOCRPagePageState extends State<GeneralOCRPage> {
   Future _onCallingAPI() async {
     if (key != null && image != null) {
       setState(() {
+        itemList = null;
         apiResponse = "";
       });
       final response = await http.post(
@@ -91,22 +94,13 @@ class _GeneralOCRPagePageState extends State<GeneralOCRPage> {
         'image': base64Encode((await image?.readAsBytes()) as List<int>),
       }),);
       setState(() {
-        // try {
-        //   Map<String, dynamic> map = jsonDecode(response.body);
-        //   IdOcrObject item = IdOcrObject.fromJson(map);
-        //   Field field = item.result!.field!;
-        //   apiResponse = "ID : ${field.idNumber?.value} \n NameTH : ${field.titleNameSurnameTh?.value} "
-        //       "\n NameEN : ${field.titleNameEn?.value} ${field.surnameEn?.value}"
-        //       "\n BDate: ${field.dobTh?.value} ${field.dobEn?.value}"
-        //       "\n Religion: ${field.religion?.value}"
-        //       "\n Address 1: ${field.address1?.value}"
-        //       "\n Address 2: ${field.address2?.value}"
-        //       "\n IDate: ${field.doiEn?.value} ${field.doiEn?.value}"
-        //       "\n EDate: ${field.doeTh?.value} ${field.doeEn?.value}"
-        //       "";
-        // } catch (e) {
+        try {
+          Map<String, dynamic> map = jsonDecode(response.body);
+          GeneralOcrObject item = GeneralOcrObject.fromJson(map);
+          itemList = item.result!;
+        } catch (e) {
           apiResponse = response.body.toString();
-        // }
+        }
         final progress = ProgressHUD.of(contextHud);
         progress?.dismiss();
       });
@@ -183,6 +177,20 @@ class _GeneralOCRPagePageState extends State<GeneralOCRPage> {
                         ),
                         Container(
                           child: apiResponse != null ? Text('${apiResponse}'): Text(""),
+                        ),
+                        Container(
+                          child: itemList != null ? ListView.builder(
+                              itemCount: itemList!.length,
+                            itemBuilder: (context, index) {
+                              final item = itemList![index];
+
+                              return ListTile(
+                                title: Text(' '),
+                                  subtitle: Text('${item.text_page}'),
+                                // subtitle: item.buildSubtitle(context),
+                              );
+                            },
+                          ): Text(""),
                         ),
                       ],
                     )
