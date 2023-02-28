@@ -1,3 +1,5 @@
+import 'package:demo_aigen/Common/CommonFunction.dart';
+import 'package:demo_aigen/Common/SettingFile.dart';
 import 'package:demo_aigen/Face/FaceCompare.dart';
 import 'package:demo_aigen/OCR/IDOCR.dart';
 import 'package:demo_aigen/OCR/OCR.dart';
@@ -77,6 +79,20 @@ class _MyHomePageState extends State<MyHomePage> {
       context,
       MaterialPageRoute(builder: (context) => const setting_view()),
     );
+  }
+
+  @override
+  initState() {
+    super.initState();
+    setDefault();
+  }
+
+  setDefault() async {
+    Future<String> stringFuture = CommonFunction().getAPIKey();
+    String saveValue = await stringFuture;
+    if (saveValue == '-') {
+      CommonFunction().saveAPIKey(SettingFile().defaultKey);
+    }
   }
 
   @override

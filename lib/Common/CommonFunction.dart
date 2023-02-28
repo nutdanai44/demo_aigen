@@ -1,4 +1,5 @@
 // Obtain shared preferences.
+import 'package:demo_aigen/Common/SettingFile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CommonFunction {
@@ -25,4 +26,5 @@ class CommonFunction {
       return value;
     }
   }
+
 }

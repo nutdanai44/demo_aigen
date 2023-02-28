@@ -95,7 +95,8 @@ class _GeneralOCRPagePageState extends State<GeneralOCRPage> {
       }),);
       setState(() {
         try {
-          final jsonMap = json.decode(response.body);
+          // final jsonMap = json.decode(response.body);
+          final jsonMap = json.decode(utf8.decode(response.bodyBytes));
           itemList = (jsonMap['result'] as List).map((item) => GeneralResult.fromJson(item)).toList();
         } catch (e) {
           apiResponse = response.body.toString();

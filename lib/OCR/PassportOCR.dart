@@ -95,7 +95,7 @@ class _PassportOCRPagePageState extends State<PassportOCRPage> {
       }),);
       setState(() {
         try {
-          final jsonMap = json.decode(response.body);
+          final jsonMap = json.decode(utf8.decode(response.bodyBytes));
           results = (jsonMap['result'] as List).map((item) => PassPortResult.fromJson(item)).toList();
         } catch (e) {
           apiResponse = response.body.toString();

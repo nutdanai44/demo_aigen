@@ -122,7 +122,7 @@ class _FaceComparePageState extends State<FaceComparePage> {
       }),);
       setState(() {
         try {
-          Map<String, dynamic> map = jsonDecode(response.body);
+          Map<String, dynamic> map = json.decode(utf8.decode(response.bodyBytes));
           FaceObject item = FaceObject.fromJson(map);
           apiResponse = "ID : ${item.requestId} \n"
               "Confidence : ${item.confidence} \n"

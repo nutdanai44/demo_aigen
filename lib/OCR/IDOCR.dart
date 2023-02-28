@@ -92,7 +92,7 @@ class _MyOCRPagePageState extends State<MyOCRPage> {
       }),);
       setState(() {
         try {
-          Map<String, dynamic> map = jsonDecode(response.body);
+          Map<String, dynamic> map = json.decode(utf8.decode(response.bodyBytes));
           IdOcrObject item = IdOcrObject.fromJson(map);
           Field field = item.result!.field!;
           apiResponse = "ID : ${field.idNumber?.value} \n NameTH : ${field.titleNameSurnameTh?.value} "
@@ -101,8 +101,8 @@ class _MyOCRPagePageState extends State<MyOCRPage> {
               "\n Religion: ${field.religion?.value}"
               "\n Address 1: ${field.address1?.value}"
               "\n Address 2: ${field.address2?.value}"
-              "\n IDate: ${field.doiEn?.value} ${field.doiEn?.value}"
-              "\n EDate: ${field.doeTh?.value} ${field.doeEn?.value}"
+              "\n IDate: ${field.doiEn?.value} / ${field.doiEn?.value}"
+              "\n EDate: ${field.doeTh?.value} / ${field.doeEn?.value}"
               "";
         } catch (e) {
           apiResponse = response.body.toString();
