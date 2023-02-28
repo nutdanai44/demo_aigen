@@ -186,7 +186,7 @@ class _GeneralOCRPagePageState extends State<GeneralOCRPage> {
 
                               return ListTile(
                                 title: Text(' '),
-                                  subtitle: Text('${item.text_page}'),
+                                  subtitle: Text('${item.textPage}'),
                                 // subtitle: item.buildSubtitle(context),
                               );
                             },

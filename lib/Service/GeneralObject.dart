@@ -18,21 +18,21 @@ class GeneralOcrObject {
 }
 
 class GeneralResult {
-  String? text_page;
+  String? textPage;
   Int? page;
-  String? max_page;
+  String? maxPage;
 
-  GeneralResult(this.text_page, this.page, this.max_page, );
+  GeneralResult(this.textPage, this.page, this.maxPage, );
   GeneralResult.fromJson(Map<String, dynamic> json)
-      : text_page = json['text_page']
+      : textPage = json['text_page']
   , page = json['page']
-  , max_page = json['max_page'];
+  , maxPage = json['max_page'];
 
   Map<String, dynamic> toJson() {
     return {
-      'text_page': text_page,
+      'text_page': textPage,
       'page': page,
-      'max_page': max_page,
+      'max_page': maxPage,
     };
   }
 }

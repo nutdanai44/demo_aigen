@@ -1,5 +1,7 @@
+import 'dart:ffi';
 import 'dart:io';
 import 'package:demo_aigen/Common/SettingFile.dart';
+import 'package:demo_aigen/Service/FaceObject.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
@@ -42,13 +44,15 @@ class _FaceComparePageState extends State<FaceComparePage> {
   String? apiResponse;
   String? key;
   late BuildContext contextHud;
+  bool isVerifiedDocument = false;
+  bool isImage1IsDocument = false;
+  bool isImage2IsDocument = false;
 
   @override
   initState() {
     super.initState();
     setDefault();
   }
-
   setDefault() async {
     Future<String> stringFuture = CommonFunction().getAPIKey();
     key = await stringFuture;
@@ -103,6 +107,7 @@ class _FaceComparePageState extends State<FaceComparePage> {
       setState(() {
         apiResponse = "";
       });
+
       final response = await http.post(
         Uri.parse('${SettingFile().host}${SettingFile().pathFaceCompare}')
         , headers: <String, String>{
@@ -111,24 +116,21 @@ class _FaceComparePageState extends State<FaceComparePage> {
       }, body: jsonEncode(<String, String>{
         'image1': base64Encode((await image?.readAsBytes()) as List<int>),
         'image2': base64Encode((await image?.readAsBytes()) as List<int>),
+        'verified_document': '${isVerifiedDocument}',
+        'image1_is_document': '${isImage1IsDocument}',
+        'image2_is_document': '${isImage2IsDocument}',
       }),);
       setState(() {
-        // try {
-        //   Map<String, dynamic> map = jsonDecode(response.body);
-        //   IdOcrObject item = IdOcrObject.fromJson(map);
-        //   Field field = item.result!.field!;
-        //   apiResponse = "ID : ${field.idNumber?.value} \n NameTH : ${field.titleNameSurnameTh?.value} "
-        //       "\n NameEN : ${field.titleNameEn?.value} ${field.surnameEn?.value}"
-        //       "\n BDate: ${field.dobTh?.value} ${field.dobEn?.value}"
-        //       "\n Religion: ${field.religion?.value}"
-        //       "\n Address 1: ${field.address1?.value}"
-        //       "\n Address 2: ${field.address2?.value}"
-        //       "\n IDate: ${field.doiEn?.value} ${field.doiEn?.value}"
-        //       "\n EDate: ${field.doeTh?.value} ${field.doeEn?.value}"
-        //       "";
-        // } catch (e) {
-        apiResponse = response.body.toString();
-        // }
+        try {
+          Map<String, dynamic> map = jsonDecode(response.body);
+          FaceObject item = FaceObject.fromJson(map);
+          apiResponse = "ID : ${item.requestId} \n"
+              "Confidence : ${item.confidence} \n"
+              "thresholds err01: ${item.thresholds?.err_01}, err001: ${item.thresholds?.err_001}, err0001: ${item.thresholds?.err_0001} \n"
+              "time_used : ${item.timeUsed}";
+        } catch (e) {
+          apiResponse = response.body.toString();
+        }
         final progress = ProgressHUD.of(contextHud);
         progress?.dismiss();
       });
@@ -162,10 +164,44 @@ class _FaceComparePageState extends State<FaceComparePage> {
               builder: (context) =>
                   ListView(
                     children: [
+                      Row(
+                        children: [
+                          SizedBox(width: 10,),
+                          Checkbox(value: isVerifiedDocument, onChanged: (bool? value) {
+                            setState(() {
+                              isVerifiedDocument = value!;
+                            });
+                          },),
+                          Text("Is verified document"),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          SizedBox(width: 10,),
+                          Checkbox(value: isImage1IsDocument, onChanged: (bool? value) {
+                            setState(() {
+                              isImage1IsDocument = value!;
+                            });
+                          },),
+                          Text("Is Image 1 is document"),SizedBox(width: 10,),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          SizedBox(width: 10,),
+                          Checkbox(value: isImage2IsDocument, onChanged: (bool? value) {
+                            setState(() {
+                              isImage2IsDocument = value!;
+                            });
+                          },),
+                          Text("Is Image 2 is document"),
+                        ],
+                      ),
                       Row (
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
+                          Spacer(),
                           MaterialButton(
                               color: Colors.blue,
                               child: const Text(
@@ -178,6 +214,7 @@ class _FaceComparePageState extends State<FaceComparePage> {
                                 pickImage();
                               }
                           ),
+                          Spacer(),
                           MaterialButton(
                               color: Colors.blue,
                               child: const Text(
@@ -190,12 +227,14 @@ class _FaceComparePageState extends State<FaceComparePage> {
                                 pickImage2();
                               }
                           ),
+                          Spacer(),
                         ],
                       ),
                       Row (
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
+                            Spacer(),
                             MaterialButton(
                                 color: Colors.blue,
                                 child: const Text(
@@ -208,6 +247,7 @@ class _FaceComparePageState extends State<FaceComparePage> {
                                   pickImageC();
                                 }
                             ),
+                            Spacer(),
                             MaterialButton(
                                 color: Colors.blue,
                                 child: const Text(
@@ -220,12 +260,14 @@ class _FaceComparePageState extends State<FaceComparePage> {
                                   pickImageC2();
                                 }
                             ),
+                            Spacer(),
                           ]),
                       SizedBox(height: 20,),
                       Row (
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
+                            Spacer(),
                             Container(
                               child: image != null ? Column(
                                 children: [
@@ -236,6 +278,7 @@ class _FaceComparePageState extends State<FaceComparePage> {
                                 ],
                               ): Text("No image selected"),
                             ),
+                            Spacer(),
                             Container(
                               child: image2 != null ? Column(
                                 children: [
@@ -246,6 +289,7 @@ class _FaceComparePageState extends State<FaceComparePage> {
                                 ],
                               ): Text("No image selected"),
                             ),
+                            Spacer(),
                           ]),
                       Container(
                         child: (image != null && image2 != null) ?
@@ -257,8 +301,31 @@ class _FaceComparePageState extends State<FaceComparePage> {
                         },) : Text(''),
                       ),
                       Container(
-                        child: apiResponse != null ? Text('${apiResponse}'): Text(""),
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                          child: apiResponse != null ? Text('${apiResponse}'): Text(""),
+                        ),
                       ),
+                      Container(
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(10, 20, 10, 20),
+                          child: apiResponse != null ? Text('Confidence : Indicates the similarity of two faces, '
+                            'a floating-point number with 2 decimal places between [0,100]. \n'
+                            'Higher confidence indicates higher possibility that two faces belong to same person.'
+                            'Note: if no face is detected within image uploaded, this string will not be returned.'): Text(""),
+                        ),
+                      ),
+                      // Container(
+                      //   child: apiResponse != null ? Text('Thresholds : A set of thresholds including 3 floating-point numbers with 2 decimal places between [0,100].\n'
+                      //       'If the confidence does not meet the "err_01" threshold, it is highly suggested that the two faces are not from the same person. '
+                      //       'While if the confidence is beyond the "err_0001" threshold, there`s high possibility that they are from the same person.\n'
+                      //       'err_01: confidence threshold at the 0.1% error rate; \n'
+                      //       'err_001: confidence threshold at the 0.01% error rate; \n'
+                      //       'err_0001: confidence threshold at the 0.001% error rate; \n'
+                      //       'Note: seeing that thresholds are not static, there`s no need to store values of thresholds in a persistent form, '
+                      //       'especially not to compare the confidence with a previously returned threshold.'
+                      //       'If no face is detected within image uploaded, this string will not be returned.'): Text(""),
+                      // ),
                     ],
                   )
           ),
