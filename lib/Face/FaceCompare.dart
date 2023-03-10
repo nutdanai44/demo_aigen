@@ -115,7 +115,7 @@ class _FaceComparePageState extends State<FaceComparePage> {
         'x-aigen-key': '${key}'
       }, body: jsonEncode(<String, String>{
         'image1': base64Encode((await image?.readAsBytes()) as List<int>),
-        'image2': base64Encode((await image?.readAsBytes()) as List<int>),
+        'image2': base64Encode((await image2?.readAsBytes()) as List<int>),
         'verified_document': '${isVerifiedDocument}',
         'image1_is_document': '${isImage1IsDocument}',
         'image2_is_document': '${isImage2IsDocument}',
